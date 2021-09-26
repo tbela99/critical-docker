@@ -1,0 +1,52 @@
+extends layout
+
+block content
+    style
+        include ../public/stylesheets/style.css
+    h1=title
+    form(action="/", method="post")
+
+        .row
+            .col-md.mb-3
+                label.form-label(for="urls", title="Enter URLs, one per line") URLs
+                textarea(id="urls", name="urls", class="form-control", required, rows="5")
+                .invalid-feedback Please provide valid urls
+
+            .col-md.mb-3
+                label.form-label(for="dimensions", title="Provide screen sizes, one per line") Screen size
+                textarea(id="dimensions", name="dimensions", placeholder="1440x900\n1024x768", class="form-control", rows="5")
+                .invalid-feedback Please provide valid dimensions
+
+        .mb-3
+            .form-check
+                label.form-check-label(for="screenshot", title="Take screenshots") Screenshots
+                    input.form-check-input(id="screenshot", name="screenshot", type="checkbox")
+
+        .mb-3
+            .form-check
+                label.form-check-label(for="secure", title="Do not disable security features such as CSP and same origin policy. May cause failure to operate") Enforce browser security
+                    input.form-check-input(id="secure", name="secure", type="checkbox")
+
+        .mb-3
+            .form-check
+                label.form-check-label(for="fonts", title="Generate javascript to download fonts dynamically") Extract web fonts
+                    input.form-check-input(id="fonts", name="fonts", type="checkbox", checked)
+
+        .row.mb-3
+            .col-auto
+                .btn-group
+                    button.btn.btn-primary(type="submit") Run
+                    button.btn.btn-secondary(type='reset') Reset
+                    .btn-group
+                        button.btn.btn-secondary.dropdown-toggle(type='button') Download
+                        ul.dropdown-menu
+                            li
+                                a.dropdown-item(href='/static/archive.tar.gz', download='critical_path_data.tar.gz', target='_blank') Download
+                                a.dropdown-item(href='/static', target='_blank') Browse
+
+        .row.mb-3.d-none
+            label.form-label(for="output") Processing the request ...
+            pre.output(id="output", class="form-control")
+
+    script
+        include ../public/javascripts/scripts.js
