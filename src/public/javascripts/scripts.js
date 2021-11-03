@@ -104,6 +104,7 @@ document.forms[0].addEventListener('submit', async e => {
                 urls,
                 fonts: form.fonts.checked,
                 secure: form.secure.checked,
+                html: form.html.checked,
                 screenshot: form.screenshot.checked,
                 dimensions: [...new Set(form.elements.dimensions.value.split(/\n|\s/g).filter(value => value.trim() !== '').map(value => value.trim()))]
             }),

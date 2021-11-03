@@ -22,6 +22,7 @@ router.post('/', async (req, res, next) => {
             concat(!req.body.screenshot ? ['--screenshot=no'] : ['--screenshot']).
             concat(!req.body.secure ? ['--secure=no'] : ['--secure']).
             concat(!req.body.fonts ? ['--fonts=no'] : ['--fonts']).
+            concat(!req.body.html ? ['--html=no'] : ['--html']).
             concat((req.body.dimensions || []).map(dimension => '--dimensions=' + shellescape([dimension])))
     };
 

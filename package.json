@@ -7,7 +7,7 @@
     "yargs": "^17.1.1"
   },
   "scripts": {
-    "docker-build": "rm -rf ./src/node_modules && cd ../critical && npm run build && cd ../docker && docker build -t tbela99/criticalpath . && docker run -p 3000:3000 tbela99/criticalpath"
+    "docker-build": "rm -rf ./src/node_modules && cd ../critical && npm run build && cd ../docker && docker build -t tbela99/critical . && docker run -d -p 3000:3000 tbela99/criticalpath"
   },
   "devDependencies": {
     "rollup": "^2.56.3"

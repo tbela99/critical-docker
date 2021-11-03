@@ -1,6 +1,7 @@
 version: "3.3"
 services:
   web:
-    build: .
+    image: tbela99/critical
+#    build: .
     ports:
       - "3000:3000"

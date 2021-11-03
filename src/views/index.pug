@@ -24,6 +24,11 @@ block content
 
         .mb-3
             .form-check
+                label.form-check-label(for="html", title="create HTML pages") HTML pages
+                    input.form-check-input(id="html", name="html", type="checkbox")
+
+        .mb-3
+            .form-check
                 label.form-check-label(for="secure", title="Do not disable security features such as CSP and same origin policy. May cause failure to operate") Enforce browser security
                     input.form-check-input(id="secure", name="secure", type="checkbox")
 
