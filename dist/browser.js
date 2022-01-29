@@ -377,6 +377,8 @@ var critical = (function (exports) {
 
             performance.mark('fontsExtraction');
 
+            performance.mark('fontsExtraction');
+
             for (font of fonts) {
 
                 if (font.style.getPropertyValue('font-family').split(/\s*,\s*/).some(token => {

@@ -97,6 +97,7 @@
             html: false,
             output: 'output/'
         }, options);
+        path.basename(options.filename);
 
         let theUrl = new URL(url);
         let filePath = options.output;
