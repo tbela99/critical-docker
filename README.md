@@ -16,7 +16,7 @@ Using podman
 $ podman run -p "1080:3000" tbela99/critical
 ```
 
-Using docker-compose or podman-compose
+## Using docker-compose or podman-compose
 
 ### Yaml configuration
 
