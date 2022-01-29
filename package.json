@@ -1,13 +1,13 @@
 {
   "dependencies": {
-    "colors": "^1.4.0",
+    "colors": "1.4.0",
     "express": "^4.17.1",
     "express-generator": "^4.2.0",
-    "puppeteer": "^10.2.0",
+    "playwright": "1.18.1",
     "yargs": "^17.1.1"
   },
   "scripts": {
-    "docker-build": "rm -rf ./src/node_modules && cd ../critical && npm run build && cd ../docker && docker build -t tbela99/critical . && docker run -d -p 3000:3000 tbela99/criticalpath"
+    "docker-build": "docker=$(command -v docker); [ -z \"$docker\" ] && docker=$(command -v podman); [ -z \"$docker\" ] && echo 'Please install docker or podman to proceed' && exit; $docker ps | grep tbela99/criticalpath | awk '{print $1}' | xargs $docker stop;rm -rf ./src/node_modules; $docker build --squash -t tbela99/critical . && $docker run -p 3000:3000 tbela99/critical"
   },
   "devDependencies": {
     "rollup": "^2.56.3"

@@ -1,7 +1,7 @@
 /* */
 const output = document.querySelector('pre#output');
 
-function scroll () {
+function scroll() {
 
     //
     output.scrollTop = output.scrollHeight;
@@ -98,16 +98,23 @@ document.forms[0].addEventListener('submit', async e => {
             return
         }
 
+        const payload = {}
+
+        Array.from(form.querySelectorAll('input[type=checkbox]')).forEach(function (el) {
+
+            payload[el.name] = !!form.querySelector('input[name="' + el.name + '"]:checked')
+        });
+
         const response = await fetch(form.action, {
 
-            body: JSON.stringify({
-                urls,
-                fonts: form.fonts.checked,
-                secure: form.secure.checked,
-                html: form.html.checked,
-                screenshot: form.screenshot.checked,
-                dimensions: [...new Set(form.elements.dimensions.value.split(/\n|\s/g).filter(value => value.trim() !== '').map(value => value.trim()))]
-            }),
+            body: JSON.stringify(Object.assign({
+                    urls
+                },
+                payload,
+                {
+                    dimensions: [...new Set(form.elements.dimensions.value.split(/\n|\s/g).filter(value => value.trim() !== '').map(value => value.trim()))]
+                }
+            )),
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

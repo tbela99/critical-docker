@@ -15,7 +15,17 @@ block content
             .col-md.mb-3
                 label.form-label(for="dimensions", title="Provide screen sizes, one per line") Screen size
                 textarea(id="dimensions", name="dimensions", placeholder="1440x900\n1024x768", class="form-control", rows="5")
+                    | 1920x1080
+                    | 1440x900
+                    | 1366x1024
+                    | 1024x768
+                    | 320x480
                 .invalid-feedback Please provide valid dimensions
+
+        .mb-3
+            .form-check
+                label.form-check-label(for="html", title="Generate HTML page") Generate HTML page
+                    input.form-check-input(id="html", name="html", type="checkbox")
 
         .mb-3
             .form-check
