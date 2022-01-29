@@ -1,13 +1,12 @@
-FROM node:alpine
-# Installs latest Chromium (89) package.
-RUN apk add --no-cache udev \
+FROM alpine
+# Installs latest Chromium package.
+RUN apk add --no-cache  udev  nodejs npm \
       chromium \
       nss \
       freetype \
       harfbuzz \
       ca-certificates \
       ttf-freefont
-# Install Puppeteer under /node_modules so it's available system-wide
 #
 WORKDIR /home/puppetmaster
 COPY ./dist ./dist
@@ -18,19 +17,16 @@ COPY ./src ./src
 #
 RUN rm -rf src/lib && \
 adduser -D -H -h /home/puppetmaster -s /bin/false puppetmaster && \
+mkdir -p /home/puppetmaster/.cache/ms-playwright/chromium-956323/chrome-linux/ && \
+ln -s /usr/bin/chromium-browser /home/puppetmaster/.cache/ms-playwright/chromium-956323/chrome-linux/chrome && \
 chown -R puppetmaster:puppetmaster /home/puppetmaster
 #
 ENV TERM=xterm-256color \
-# Tell Puppeteer to skip installing Chrome. We'll be using the installed package.
-PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
-CHROMIUM_PATH="/usr/bin/chromium-browser" \
-PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
+PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 #
 USER puppetmaster
 # npm install
-RUN npm i && \
+RUN npm i --only=prod --no-optional && \
 #    npm audit fix --force &&  \
-    cd src && npm i # && npm audit fix --force
-#
+cd src && npm i --only=prod --no-optional
 ENTRYPOINT ["sh", "/home/puppetmaster/start.sh"]
-# ENTRYPOINT ["node", "index.js"]

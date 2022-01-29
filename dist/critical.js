@@ -1,12 +1,28 @@
 (function (global, factory) {
-    typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('puppeteer/lib/cjs/puppeteer/node-puppeteer-core'), require('path'), require('fs'), require('colors')) :
-    typeof define === 'function' && define.amd ? define(['exports', 'puppeteer/lib/cjs/puppeteer/node-puppeteer-core', 'path', 'fs', 'colors'], factory) :
-    (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.critical = {}, global.puppeteer, global.path, global.fs));
-}(this, (function (exports, puppeteer, path, fs) { 'use strict';
+    typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('playwright'), require('path'), require('fs'), require('colors')) :
+    typeof define === 'function' && define.amd ? define(['exports', 'playwright', 'path', 'fs', 'colors'], factory) :
+    (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.critical = {}, global.playwright, global.path, global.fs));
+})(this, (function (exports, playwright, path, fs) { 'use strict';
 
-    function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
+    function _interopNamespace(e) {
+        if (e && e.__esModule) return e;
+        var n = Object.create(null);
+        if (e) {
+            Object.keys(e).forEach(function (k) {
+                if (k !== 'default') {
+                    var d = Object.getOwnPropertyDescriptor(e, k);
+                    Object.defineProperty(n, k, d.get ? d : {
+                        enumerable: true,
+                        get: function () { return e[k]; }
+                    });
+                }
+            });
+        }
+        n["default"] = e;
+        return Object.freeze(n);
+    }
 
-    var puppeteer__default = /*#__PURE__*/_interopDefaultLegacy(puppeteer);
+    var playwright__namespace = /*#__PURE__*/_interopNamespace(playwright);
 
     /**
      *
@@ -36,27 +52,37 @@
      *
      * @param {string} url
      * @param {object} options?
-     * - fonts:
-     * - headless:
-     * - screenshot: false,
-     * - secure: false,
-     * - filename: '',
-     * - width: 800,
-     * - height: 600,
+     * - fonts: true
+     * - headless: true
+     * - console: true
+     * - screenshot: false
+     * - secure: false
+     * - filename: ''
+     * - width: 800
+     * - height: 600
      * - dimensions: []|string
      * - container: false
+     * - html: false
      * - output: 'output/'
      *
-     * @returns {Promise<{fonts: string[], styles: object[]}>}
+     * @returns {Promise<{styles: string[], fonts: object[], stats: object, html: string?}>}
      */
     async function critical(url, options = {}) {
 
         const styles = new Set;
+        const stats = [];
+        let html = '';
         let fonts = new Set;
+        const chromium = (['chromium', 'firefox', 'webkit', 'edge', 'chrome'].includes(options.browser) && playwright__namespace[options.browser]) || playwright__namespace.chromium;
 
         if (['"', "'"].includes(url.charAt(0))) {
 
             url = url.replace(/^(['"])([^\1\s]+)\1$/, '$2');
+        }
+
+        if(!url.match(/^([a-zA-Z]+:)?\/\//)) {
+
+            url = 'file://' + (url.charAt(0) == '/' ? url : path.resolve(__dirname + '/' + url));
         }
 
         options = Object.assign({
@@ -64,18 +90,18 @@
             fonts: true,
             headless: true,
             screenshot: false,
+            console: true,
             secure: false,
             filename: '',
-            width: 800,
-            height: 600,
             container: false,
+            html: false,
             output: 'output/'
         }, options);
 
-        let filename = path.basename(options.filename);
-        let theUrl = new URL(filename === '' ? url : filename, url);
+        let theUrl = new URL(url);
         let filePath = options.output;
-        let shortUrl = theUrl.protocol + '//' + theUrl.host + theUrl.pathname;
+        let shortUrl = (theUrl.protocol == 'file:' ? path.basename(theUrl.pathname) : theUrl.protocol + '//' + theUrl.host + theUrl.pathname);
+        let dimensions;
 
         if (filePath.substr(-1) != '/') {
 
@@ -85,6 +111,10 @@
         if (theUrl.host !== '') {
 
             filePath += theUrl.host.replace(':', '@') + '/';
+        }
+        else {
+
+            filePath += 'local_files/';
         }
 
         if (theUrl.pathname != '/') {
@@ -96,6 +126,7 @@
         }
 
         filePath = filePath.replace(/[/]+$/, '');
+
         fs.mkdir(path.dirname(filePath), {recursive: true}, function (error, state) {
 
             if (error) {
@@ -106,12 +137,22 @@
 
         options.filename = filePath;
 
-        let dimensions = 'dimensions' in options ? options.dimensions : {
-            width: options.width || 800,
-            height: options.height || 600
-        };
+        if ('dimensions' in options) {
 
-        if (!Array.isArray(dimensions)) {
+            dimensions = options.dimensions;
+        }
+
+        else {
+
+            dimensions = !isNaN(options.width) && !isNaN(options.height) ? [{width: options.width, height: +options.height}] : ['1920x1080', '1440x900', '1366x768', '1024x768', '768x1024', '320x480'];
+        }
+
+
+        if (typeof dimensions == 'string') {
+
+            dimensions = dimensions.split(/\s/g);
+        }
+        else if (!Array.isArray(dimensions)) {
 
             dimensions = [dimensions];
         }
@@ -137,22 +178,12 @@
             return a.width - b.width;
         });
 
-        if (!/^(https?:)\/\//.test(url)) {
-
-            url = 'file://' + path.resolve(url);
-        }
-
-        if (typeof btoa == 'undefined') {
-
-            var btoa = function (string) {
-
-                return Buffer.from(string, 'binary').toString('base64')
-            };
-        }
-
-        const script = 'data:text/javascript;base64, ' + btoa(fs.readFileSync(path.dirname(__filename) + '/browser.js').toString());
+        const script = fs.readFileSync(path.dirname(__filename) + '/browser.js').toString();
+        // const script = 'data:text/javascript;base64, ' + btoa(readFileSync(dirname(__filename) + '/browser.js').toString());
+        // const script = 'file://' + resolve(__dirname + '/browser.js');
         const launchOptions = {
             headless: options.headless,
+            bypassCSP: !options.secure,
             defaultViewport: {
                 isMobile: true,
                 isLandscape: false,
@@ -162,12 +193,12 @@
             ignoreDefaultArgs: ['--enable-automation']
         };
 
-        const executablePath = process.env.CHROMIUM_PATH;
-
-        if (executablePath) {
-
-            launchOptions.executablePath = executablePath;
-        }
+        // const executablePath = process.env.CHROMIUM_PATH;
+        //
+        // if (executablePath) {
+        //
+        //     launchOptions.executablePath = executablePath
+        // }
 
         for (let dimension of dimensions) {
 
@@ -198,28 +229,26 @@
                 );
             }
 
-            console.info(`[${shortUrl}]> selected browser `.blue + puppeteer__default['default'].product.green);
+            console.info(`[${shortUrl}]> selected browser `.blue + chromium.name().green);
             console.info(`[${shortUrl}]> set viewport to `.blue + `${dimension.width}x${dimension.height}`.green);
 
-            const browser = await puppeteer__default['default'].launch(launchOptions);
+            const browser = await chromium.launch(launchOptions);
 
-            const pages = await browser.pages();
-            if (pages.length === 0) pages.push(await browser.newPage());
-
-            const page = pages[0];
-
-            if (!options.secure) {
-
-                await page.setBypassCSP(true);
-            }
+            // const pages = browser.pages();
+            // if (pages.length === 0) pages.push(await browser.newPage());
+            //
+            // const page = pages[0];
+            const context = await browser.newContext({
+                bypassCSP: !options.secure,
+                viewport: dimension
+            });
+            const page = await context.newPage();
 
             if (options.console) {
 
                 page.on('console', message =>
-                    console.log(`[${shortUrl}]> ${message.type().substr(0, 3).replace(/^([a-z])/, (all, one) => one.toUpperCase())} ${message.text()}`.yellow))
+                    console.log(`[${shortUrl}]> ${message.type().replace(/^([a-z])/, (all, one) => one.toUpperCase())} ${message.text()}`.yellow))
                     .on('pageerror', ({message}) => console.log(`[${shortUrl}]> ${message}.red`))
-                    // .on('response', response =>
-                    //     console.log(`${response.status()} ${response.url()}`))
                     .on('requestfailed', request => {
 
                         const failure = request.failure();
@@ -228,21 +257,8 @@
             }
 
             console.info(`[${shortUrl}]> open `.blue + url);
-            await page.goto(url, {waitUntil: 'networkidle0', timeout: 0});
-            await page.addScriptTag({url: script});
 
-            console.info(`[${shortUrl}]> collect critical data`.blue);
-            const data = await page.evaluate(() => {
-
-                return critical.extract().then(result => {
-
-                    result.fonts = result.fonts.map(font => JSON.stringify(font));
-                    return result;
-                })
-            });
-
-            data.styles.forEach(line => styles.add(line));
-            data.fonts.forEach(line => fonts.add(line));
+            await page.goto(url, {waitUntil: 'networkidle', timeout: 0});
 
             if (options.screenshot) {
 
@@ -255,6 +271,32 @@
 
                 console.info(`[${shortUrl}]>  generating screenshot at `.blue + screenshot.path.green);
                 await page.screenshot(screenshot);
+            }
+
+            // await page.addScriptTag({url: script});
+            console.info(`[${shortUrl}]> collect critical data`.blue);
+            const data = await page.evaluate(param => {
+
+                const sc = document.createElement('script');
+
+                sc.textContent = param.script;
+                document.body.append(sc);
+                sc.remove();
+
+                return critical.extract(param.options).then(result => {
+
+                    result.fonts = result.fonts.map(font => JSON.stringify(font));
+                    return result;
+                })
+            }, {options, script});
+
+            data.styles.forEach(line => styles.add(line));
+            data.fonts.forEach(line => fonts.add(line));
+            stats.push({width: dimension.width, height: dimension.height, stats: data.stats});
+
+            if (options.html && html === '') {
+
+                html = data.html;
             }
 
             await page.close();
@@ -281,9 +323,27 @@
             });
         }
 
-        fonts = new Set([...fonts].map(font => JSON.parse(font)));
+        if (options.html && html !== '') {
+
+            const match = html.match(/<style data-critical="true">((.|[\r\n])*?)<\/style>/);
+
+            if (match) {
+
+                html = html.replace(match[0], `<style data-critical="true">${[...styles].join('\n')}</style>`);
+            }
+
+            fs.writeFile(`${options.filename}.html`, html, function (error, data) {
+
+                if (error) {
+
+                    console.error({error});
+                }
+            });
+        }
 
         if (options.fonts) {
+
+            fonts = new Set([...fonts].map(font => JSON.parse(font)));
 
             let fontJS = options.filename;
             let data = '/* no font found! */';
@@ -311,11 +371,11 @@
             });
         }
 
-        return {styles: [...styles], fonts: [...fonts]};
+        return {styles: [...styles], fonts: [...fonts], stats, html};
     }
 
     exports.critical = critical;
 
     Object.defineProperty(exports, '__esModule', { value: true });
 
-})));
+}));
