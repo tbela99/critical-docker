@@ -87,7 +87,9 @@ var critical = (function (exports) {
 
         // Get a list of all the elements in the view.
         const height = window.innerHeight;
-        const walker = document.createNodeIterator(document, NodeFilter.SHOW_ELEMENT, {acceptNode: () => NodeFilter.SHOW_ELEMENT});
+        const walker = document.createNodeIterator(document, NodeFilter.SHOW_ELEMENT, {acceptNode: function (node) {
+            return NodeFilter.SHOW_ELEMENT;
+        }});
 
         const fonts = new Set;
         const fontFamilies = new Set;
@@ -105,7 +107,7 @@ var critical = (function (exports) {
 
             rule = document.styleSheets[k];
 
-            if (rule.media.mediaText === 'print' || (rule.media.mediaText !== '' && !window.matchMedia(rule.media.mediaText).matches)) {
+            if (rule.media.mediaText == 'print' || (rule.media.mediaText !== '' && !window.matchMedia(rule.media.mediaText).matches)) {
 
                 continue;
             }
@@ -129,7 +131,7 @@ var critical = (function (exports) {
 
         if (allStylesheets.length === 0) {
 
-            return {styles: [], fonts: [], stats: {}};
+            return {};
         }
 
         let node;
@@ -140,7 +142,7 @@ var critical = (function (exports) {
 
         while ((node = walker.nextNode())) {
 
-            if (options && options.signal && options.signal.aborted) {
+            if (options?.signal?.aborted) {
 
                 return Promise.reject('Aborted');
             }
@@ -202,7 +204,7 @@ var critical = (function (exports) {
 
                     if (allStylesheets[k].rule.style.getPropertyValue('font-family')) {
 
-                        allStylesheets[k].rule.style.getPropertyValue('font-family').split(/\s*,\s*/).forEach(fontFamily => fontFamily !== 'inherit' && fontFamilies.add(fontFamily.replace(/(['"])([^\1\s]+)\1/, '$2')));
+                        allStylesheets[k].rule.style.getPropertyValue('font-family').split(/\s*,\s*/).forEach(fontFamily => fontFamily != 'inherit' && fontFamilies.add(fontFamily.replace(/(['"])([^\1\s]+)\1/, '$2')));
                     }
                 }
 
@@ -276,7 +278,7 @@ var critical = (function (exports) {
                     });
 
                     fileUpdate = true;
-                } else if (file && file !== files.get(rule.parentStyleSheet).file) {
+                } else if (file && file != files.get(rule.parentStyleSheet).file) {
 
                     fileUpdate = true;
                 }
@@ -297,7 +299,7 @@ var critical = (function (exports) {
                 file = files.get(rule.parentStyleSheet).file;
                 css = rule.cssText;
 
-                if (file !== 'inline') {
+                if (file != 'inline') {
 
                     // resolve url()
                     css = css.replace(/url\(([^)%\s]*?)\)/g, function (all, one) {
@@ -317,41 +319,41 @@ var critical = (function (exports) {
 
                 while (rule.parentRule) {
 
-                    /**
-                     *
-                     * @type {CSSMediaRule}
-                     */
-                    rule = rule.parentRule;
+                        /**
+                         *
+                         * @type {CSSMediaRule}
+                         */
+                        rule = rule.parentRule;
 
-                    if (rule.conditionText == 'print') {
+                        if (rule.conditionText == 'print') {
 
-                        continue loop1;
+                            continue loop1;
+                        }
+
+                        if (!excluded.includes(rule.conditionText)) {
+
+                            css = '@' + rule.constructor.name.replace(/^CSS(.*?)Rule/, '$1').toLowerCase() + ' ' + rule.conditionText + ' {' + css + '}';
+                        }
+
+                        if (!rule.parentRule) {
+
+                            break;
+                        }
                     }
-
-                    if (!excluded.includes(rule.conditionText)) {
-
-                        css = '@' + rule.constructor.name.replace(/^CSS(.*?)Rule/, '$1').toLowerCase() + ' ' + rule.conditionText + ' {' + css + '}';
-                    }
-
-                    if (!rule.parentRule) {
-
-                        break;
-                    }
-                }
 
                 if (rule.parentStyleSheet) {
 
                     let media = rule.parentStyleSheet.media.mediaText;
 
-                    if (media === 'print') {
+                    if (media == 'print') {
 
                         continue loop1;
                     }
 
-                    // if (!excluded.includes(media)) {
+                    if (media !== '') {
 
                         css = '@media ' + media + ' {' + css + '}';
-                    // }
+                    }
                 }
 
                 if (styles.has(css)) {
@@ -374,8 +376,6 @@ var critical = (function (exports) {
             let font;
             let fontObject;
             let src;
-
-            performance.mark('fontsExtraction');
 
             performance.mark('fontsExtraction');
 
@@ -426,8 +426,8 @@ var critical = (function (exports) {
                         name = font.style.item(j);
                         value = font.style.getPropertyValue(name);
 
-                        name !== 'font-family' &&
-                        name !== 'src' &&
+                        name != 'font-family' &&
+                        name != 'src' &&
                         value !== '' &&
                         value !== undefined &&
                         (fontObject.properties[name.replace(/([A-Z])/g, (all, name) => '-' + name.toLowerCase())] = value);
@@ -474,9 +474,9 @@ var critical = (function (exports) {
 
                 document.body.append(node);
 
-                if (node.tagName === 'LINK') {
+                if (node.tagName == 'LINK') {
 
-                    if (node.media === 'print') {
+                    if (node.media == 'print') {
 
                         return
                     }

@@ -97,7 +97,6 @@
             html: false,
             output: 'output/'
         }, options);
-        path.basename(options.filename);
 
         let theUrl = new URL(url);
         let filePath = options.output;
@@ -151,7 +150,7 @@
 
         if (typeof dimensions == 'string') {
 
-            dimensions = dimensions.split(/\s/g);
+            dimensions = dimensions.split(/\s/);
         }
         else if (!Array.isArray(dimensions)) {
 
@@ -342,9 +341,9 @@
             });
         }
 
-        if (options.fonts) {
+        fonts = new Set([...fonts].map(font => JSON.parse(font)));
 
-            fonts = new Set([...fonts].map(font => JSON.parse(font)));
+        if (options.fonts) {
 
             let fontJS = options.filename;
             let data = '/* no font found! */';
