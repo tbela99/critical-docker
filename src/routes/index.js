@@ -10,6 +10,7 @@ router.get('/', async function (req, res, next) {
 // jobs are run through ./jobs.js
 router.post('/', async (req, res, next) => {
 
+    const fs = require('fs');
     const db = require('../dist/db').db('./tasks.db');
     const shellescape = require('shell-escape');
     const crypto = require('crypto');
@@ -33,6 +34,14 @@ router.post('/', async (req, res, next) => {
 
     res.writeHead(200, {
         'Content-Type': 'application/json'
+    });
+
+    fs.rmdir(process.cwd() + '/../output', {recursive: true}, function (error, state) {
+
+        if (error) {
+
+            console.error({error});
+        }
     });
 
     await db.run(`INSERT INTO commands(
