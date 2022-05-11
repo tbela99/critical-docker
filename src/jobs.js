@@ -102,7 +102,7 @@ setInterval(async function () {
             'FINISH', code, row.id);
 
         const { exec } = require('child_process');
-        exec(`cd ../output/; [ -f 'archive.tar.gz' ] && rm archive.tar.gz; tar -czvf archive.tar.gz *.*`, (error, stdout, stderr) => {
+        exec(`cd ../output/; [ -f 'archive.tar.gz' ] && rm archive.tar.gz; find | xargs tar -czvf archive.tar.gz`, (error, stdout, stderr) => {
 
             if (stdout) {
 

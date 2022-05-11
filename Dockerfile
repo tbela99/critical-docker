@@ -10,9 +10,9 @@ RUN apk add --no-cache  udev  nodejs npm \
 #
 WORKDIR /home/puppetmaster
 COPY ./dist ./dist
-COPY ./package.json .
+COPY ./package.json ./package.json
 COPY ./bin/ ./bin/
-COPY ./start.sh .
+COPY ./start.sh ./start.sh
 COPY ./src ./src
 #
 RUN rm -rf src/lib && \

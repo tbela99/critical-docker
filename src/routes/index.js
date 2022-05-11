@@ -1,5 +1,4 @@
 const express = require('express');
-const {resolve} = require("path");
 const router = express.Router();
 
 /* GET home page. */

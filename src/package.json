@@ -16,7 +16,7 @@
     "pug": "^3.0.2",
     "serve-index": "^1.9.1",
     "shell-escape": "^0.2.0",
-    "sqlite3": "^5.0.2"
+    "sqlite3": "^5.0.3"
   },
   "devDependencies": {
     "rollup": "^2.56.3",
