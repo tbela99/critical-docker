@@ -10,6 +10,15 @@ router.get('/', async function (req, res, next) {
 // jobs are run through ./jobs.js
 router.post('/', async (req, res, next) => {
 
+    res.setHeader("Access-Control-Allow-Origin", "*");
+
+    if (!req.body || !req.body.urls) {
+
+        res.sendStatus(400);
+        res.end();
+        return;
+    }
+
     const fs = require('fs');
     const db = require('../dist/db').db('./tasks.db');
     const shellescape = require('shell-escape');
@@ -60,6 +69,8 @@ router.post('/', async (req, res, next) => {
 
 // get jobs progress
 router.post('/poll', async (req, res, next) => {
+
+    res.setHeader("Access-Control-Allow-Origin", "*");
 
     const db = require('../dist/db').db('./tasks.db');
 

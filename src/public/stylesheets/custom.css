@@ -1,0 +1,9 @@
+/* custom styles */
+.gh-logo { width: 16px; }
+.busy { pointer-events: none; }
+.busy, .busy * { cursor: wait; }
+.dropdown-menu.show {
+    display: block;
+    top: calc(100% + 4px);
+    right: 0;
+}
