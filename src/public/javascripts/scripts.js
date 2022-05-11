@@ -153,7 +153,14 @@ document.forms[0].addEventListener('submit', async e => {
 
                             setTimeout(function () {
 
-                                document.querySelector('a[download]').click()
+                                let download = document.querySelector('a[download]');
+                                let url = new URL(download.href);
+
+                                url.search = Date.now();
+
+                                download.href = url.toString();
+
+                                download.click()
                             }, 50)
                         }
 

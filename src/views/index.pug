@@ -3,6 +3,7 @@ extends layout
 block content
     style
         include ../public/stylesheets/style.css
+
     h1=title
     form(action="/", method="post")
 
@@ -24,18 +25,13 @@ block content
 
         .mb-3
             .form-check
-                label.form-check-label(for="html", title="Generate HTML page") Generate HTML page
+                label.form-check-label(for="html", title="Generate HTML pages") Generate HTML page
                     input.form-check-input(id="html", name="html", type="checkbox")
 
         .mb-3
             .form-check
                 label.form-check-label(for="screenshot", title="Take screenshots") Screenshots
                     input.form-check-input(id="screenshot", name="screenshot", type="checkbox")
-
-        .mb-3
-            .form-check
-                label.form-check-label(for="html", title="create HTML pages") HTML pages
-                    input.form-check-input(id="html", name="html", type="checkbox")
 
         .mb-3
             .form-check
@@ -62,6 +58,18 @@ block content
         .row.mb-3.d-none
             label.form-label(for="output") Processing the request ...
             pre.output(id="output", class="form-control")
-
+    hr.mb-1
+    div.navbar-expand
+        ul.navbar-nav
+            li.nav-item
+                span.nav-link.disabled Contribute
+            li.nav-item
+                a.nav-link(href="https://github.com/tbela99/critical", target="_blank")
+                    img.gh-logo.me-1(src="/images/github.png")
+                    | Critical
+            li.nav-item
+                a.nav-link(href="https://github.com/tbela99/critical-docker", target="_blank")
+                    img.gh-logo.me-1(src="/images/github.png")
+                    | Critical Docker
     script
         include ../public/javascripts/scripts.js
