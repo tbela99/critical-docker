@@ -26,7 +26,7 @@ services:
   web:
     image: tbela99/critical
     ports:
-      - "1080:3000"
+      - "127.0.0.1:1080:3000"
 
 ```
 
