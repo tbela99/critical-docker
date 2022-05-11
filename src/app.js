@@ -1,15 +1,19 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
+const createError = require('http-errors');
+const express = require('express');
+
+const compression = require('compression')
+const path = require('path');
 // var bodyParser = require('body-parser');
 // var cookieParser = require('cookie-parser');
 // var logger = require('morgan');
 
-var indexRouter = require('./routes/index');
+const indexRouter = require('./routes/index');
 // var usersRouter = require('./routes/users');
 
-var app = express();
-var serveIndex = require('serve-index');
+const app = express();
+const serveIndex = require('serve-index');
+
+app.use(compression());
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
