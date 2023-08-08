@@ -1,4 +1,4 @@
-FROM alpine
+FROM alpine:3.18.3
 # Installs latest Chromium package.
 RUN apk add --no-cache  udev  nodejs npm \
       chromium \
